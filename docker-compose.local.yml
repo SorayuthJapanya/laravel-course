@@ -1,19 +1,19 @@
 services:
-  app:
-    build:
-      context: ./
-      dockerfile: ./.docker/containers/php/Dockerfile.dev
-    container_name: laravel_course
-    restart: unless-stopped
-    ports:
-      - "8888:8000"
-    volumes:
-      - ./:/app/:delegated
-    env_file:
-      - .env
-    depends_on:
-      mysql:
-        condition: service_healthy
+  # app:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./.docker/containers/php/Dockerfile.dev
+  #   container_name: laravel_course
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8888:8000"
+  #   volumes:
+  #     - ./:/app/:delegated
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
 
   mysql:
     image: mysql:8.4
