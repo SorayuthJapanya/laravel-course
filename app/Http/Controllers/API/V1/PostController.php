@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -14,9 +15,11 @@ class PostController extends Controller
      */
     public function index()
     {
+        $user = request()->user();
+        $posts = $user->posts()->with('author')->paginate();
         return response()->json([
             'message' => 'success',
-            'data' => PostResource::collection(Post::with('author')->get())->resolve()
+            'data' => PostResource::collection($posts)
         ], 200);
     }
 
@@ -25,8 +28,14 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
+        // Get body
         $data = $request->validated();
-        $data['author_id'] = 1;
+
+        // Get user
+        $user = $request->user();
+        $data['author_id'] = $user->id;
+
+        // Create post
         $post = Post::create($data);
 
         return response()->json([
@@ -40,6 +49,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        abort_if(Auth::id() != $post->id, 403, 'Access Forbidden');
         return response()->json([
             'message' => 'success',
             'data' => (new PostResource($post))->resolve()
@@ -51,8 +61,9 @@ class PostController extends Controller
      */
     public function update(StorePostRequest $request, Post $post)
     {
-        $data = $request->validated();
+        abort_if(Auth::id() != $post->id, 403, 'Access Forbidden');
 
+        $data = $request->validated();
         $post->update($data);
 
         return response()->json([
@@ -66,6 +77,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        abort_if(Auth::id() != $post->id, 403, 'Access Forbidden');
+        
         $post->delete();
         return response()->json([
             'message' => 'Deleted posts successfully.',

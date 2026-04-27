@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\V1\PostController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/healthy', function () {
@@ -12,7 +13,14 @@ Route::get('/healthy', function () {
     ]);
 });
 
-Route::prefix('v1')->group(function () {
-    Route::apiResource('posts', PostController::class);
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+    Route::get('me', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::prefix('v1')->group(function () {
+        Route::apiResource('posts', PostController::class);
+    });
 });
 
+require __DIR__.'/auth.php';
